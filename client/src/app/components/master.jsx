@@ -20,7 +20,7 @@ var Master = React.createClass({
         <AppBar
           className="mui-dark-theme"
           onMenuIconButtonTouchTap={this._onMenuIconButtonTouchTap}
-          title="Testing"
+          title="PagerDuty Incidents"
           zDepth={0}>
         </AppBar>
 

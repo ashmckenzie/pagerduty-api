@@ -25,7 +25,8 @@ module PagerDutAPI
               token:  ENV['PAGERDUTY_ACCOUNT_TOKEN']  || raise("Missing ENV['PAGERDUTY_ACCOUNT_TOKEN'], add to .env.development or .env")
             },
 
-            sleep_for: ENV['PAGERDUTY_NOTIFICATION_SLEEP_FOR'] || 10
+            incidents_for_user_id:  ENV['PAGERDUTY_ACCOUNT_INCIDENTS_FOR_USER_ID'],
+            sleep_for:              ENV['PAGERDUTY_NOTIFICATION_SLEEP_FOR'] || 10
           }
         )
       end
@@ -45,13 +46,12 @@ module PagerDutAPI
 
     def poll
       while true do
-        response          = pagerduty.get('incidents', fields: 'id,created_on,html_url,trigger_summary_data', status: 'triggered')
+        response          = pagerduty.get('incidents', fields: 'id,created_on,html_url,trigger_summary_data,assigned_to_user', assigned_to_user: settings.incidents_for_user_id, status: 'triggered,acknowledged')
         unseen_incidents  = response.incidents.reject { |x| seen_incidents.include?(x.id) }
 
         unless unseen_incidents.empty?
           unseen_incidents.each do |incident|
             seen_incidents << incident.id
-
             publisher.tell_the_world!(PagerDutAPI::SSE.new('incident', incident, incident['created_on'].to_i))
           end
         else
@@ -135,14 +135,14 @@ class WebApp < Sinatra::Base
   helpers Sinatra::Streaming
 
   get '/subscribe', provides: :event_stream do
-    headers('Content' => 'keep-alive')
-    headers('Access-Control-Allow-Origin' => '*')
+    headers(
+      'Content'                     => 'keep-alive',
+      'Access-Control-Allow-Origin' => '*'
+    )
 
     stream(:keep_open) do |out|
       $incidents_publisher.on(:event) do |sse|
-        unless out.closed?
-          out << sse.to_s
-        end
+        out << sse.to_s unless out.closed?
       end
     end
 
