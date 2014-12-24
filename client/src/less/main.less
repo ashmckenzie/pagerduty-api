@@ -1,0 +1,46 @@
+/* material-ui */
+@import "node_modules/material-ui/src/less/scaffolding.less";
+@import "node_modules/material-ui/src/less/components.less";
+
+/* hightlight.js for syntax highlighting */
+// @import (less) "monokai_sublime.css";
+
+// @import "color-palette.less";
+// @import "footer.less";
+// @import "layout/full-width-section.less";
+
+a {
+  color: @accent-1-color;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+/* App Specific Styles */
+.mui-app-canvas {
+
+  height: 100%;
+
+  .mui-app-bar {
+    .github-icon-button {
+      float: right;
+      margin-right: -16px;
+    }
+  }
+}
+
+.logo {
+  cursor: pointer;
+  .mui-font-style-headline;
+  .mui-text-full-white;
+  line-height: @app-bar-height;
+  .mui-font-weight-light;
+  background-color: @primary-1-color;
+  padding-left: @desktop-gutter;
+  padding-top: 0;
+  margin-bottom: @desktop-gutter-mini;
+}
+
+@import "app.less";

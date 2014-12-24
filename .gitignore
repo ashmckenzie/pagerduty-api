@@ -1,0 +1,4 @@
+.env*
+pagerduty-api.sublime-*
+client/build
+client/node_modules/*
