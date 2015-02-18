@@ -1,9 +1,9 @@
 require './web_app'
 
-$incidents_publisher = PagerDutAPI::IncidentPublisher.new
+$incidents_publisher = PagerDutyAPI::IncidentPublisher.new
 
 Thread.new {
-  PagerDutAPI::Incidents.new($incidents_publisher).poll
+  PagerDutyAPI::Incidents.new($incidents_publisher).poll
 }
 
 run WebApp

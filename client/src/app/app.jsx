@@ -20,14 +20,22 @@
 
   source.addEventListener('pagerduty:ping', function(e) {
     console.log('SSE: pagerduty:ping');
-    incident = JSON.parse(e.data);
-    $('#incidents tbody').prepend('<tr><td>' + incident.timestamp + '</td><td>-</td><td>ping</td><td></td></tr>')
+    // incident = JSON.parse(e.data);
+    // $('#incidents tbody').prepend('<tr><td>' + incident.timestamp + '</td><td>-</td><td>ping</td><td></td></tr>')
   }, false);
 
   source.addEventListener('pagerduty:incident', function(e) {
     console.log('SSE: pagerduty:incident=[' + e.data) + ']';
     incident = JSON.parse(e.data);
-    $('#incidents tbody').prepend('<tr><td>' + incident.timestamp + '</td><td>' + incident.data.id + '</td><td>' + incident.data.trigger_summary_data.subject + '</td><td><a href="' + incident.data.html_url + '" target="_blank">' + incident.data.html_url + '</a></td></tr>')
+    $('#incidents tbody').prepend(
+      '<tr>' +
+      '<td>' + incident.timestamp + '</td>' +
+      '<td>' + incident.data.id + '</td>' +
+      '<td>' + incident.data.trigger_summary_data.subject + '</td>' +
+      '<td>' + '<a href="' + incident.data.html_url + '" target="_blank">' + incident.data.html_url + '</a>' + '</td>' +
+      '<td>-</td>' +
+      '</tr>'
+    )
     createjs.Sound.play(fogHornSound);
   }, false);
 

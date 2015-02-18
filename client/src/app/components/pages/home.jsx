@@ -20,6 +20,7 @@ var HomePage = React.createClass({
               <th>ID</th>
               <th>Subject</th>
               <th>URL</th>
+              <th>Actions</th>
             </tr>
           </thead>
 

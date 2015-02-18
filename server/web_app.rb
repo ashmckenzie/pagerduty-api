@@ -5,7 +5,7 @@ require 'dotenv'
 require 'singleton'
 require 'hashie'
 
-module PagerDutAPI
+module PagerDutyAPI
   class Config
 
     include Singleton
@@ -36,7 +36,7 @@ end
 
 require 'pager_duty/connection'
 
-module PagerDutAPI
+module PagerDutyAPI
   class Incidents
 
     def initialize publisher
@@ -52,10 +52,10 @@ module PagerDutAPI
         unless unseen_incidents.empty?
           unseen_incidents.each do |incident|
             seen_incidents << incident.id
-            publisher.tell_the_world!(PagerDutAPI::SSE.new('incident', incident, incident['created_on'].to_i))
+            publisher.tell_the_world!(PagerDutyAPI::SSE.new('incident', incident, incident['created_on'].to_i))
           end
         else
-          publisher.tell_the_world!(PagerDutAPI::SSE.new('ping', {}))
+          publisher.tell_the_world!(PagerDutyAPI::SSE.new('ping', {}))
         end
 
         sleep(settings.sleep_for)
@@ -78,7 +78,7 @@ end
 
 require 'wisper'
 
-module PagerDutAPI
+module PagerDutyAPI
   class IncidentPublisher
 
     include Wisper::Publisher
@@ -93,7 +93,7 @@ end
 
 require 'json'
 
-module PagerDutAPI
+module PagerDutyAPI
   class SSE
 
     def initialize channel, data, timestamp=Time.now.to_i
