@@ -69,9 +69,9 @@ module PD
 
     class MainCommand < AbstractCommand
       subcommand 'console', 'Run a console', ConsoleCommand
-      subcommand 'list', 'List all needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
-      subcommand 'ack-all', 'Acknowledge all', AcknowledgeAllCommand
-      subcommand 'resolve-all', 'Resolve all', ResolveAllCommand
+      subcommand 'list', 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
+      subcommand 'ack-all', 'Acknowledge all (mine)', AcknowledgeAllCommand
+      subcommand 'resolve-all', 'Resolve all (mine)', ResolveAllCommand
     end
   end
 end
