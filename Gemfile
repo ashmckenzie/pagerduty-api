@@ -1,6 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rake'
+gem 'clamp'
 
 gem 'sinatra', require: false
 gem 'sinatra-contrib'
