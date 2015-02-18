@@ -58,6 +58,7 @@ GEM
       tilt (~> 1.3)
     slop (3.6.0)
     terminal-notifier (1.6.2)
+    terminal-table (1.4.5)
     thin (1.6.3)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0)
@@ -81,5 +82,6 @@ DEPENDENCIES
   sinatra
   sinatra-contrib
   terminal-notifier
+  terminal-table
   thin
   wisper

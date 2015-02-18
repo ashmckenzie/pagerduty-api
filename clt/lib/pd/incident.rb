@@ -9,9 +9,11 @@ module PD
       @raw = raw
     end
 
-    def self.find(id, fields: DEFAULT_FIELDS)
+    def self.find(id, fields: false)
       path = PathHelper.incident_path(id)
-      response = Client.connection.get(path, fields: fields.join(','))
+      options = {}
+      options[:fields] = fields.join(',') if fields
+      response = Client.connection.get(path, options)
       new(response)
     end
 
@@ -23,8 +25,20 @@ module PD
       @status ||= raw.status
     end
 
-    def nodename
-      @nodename ||= raw.trigger_summary_data.HOSTNAME
+    def node
+      @node ||= Node.new(raw.trigger_summary_data.HOSTNAME)
+    end
+
+    def user
+      @user ||= User.new(raw.assigned_to_user)
+    end
+
+    def link
+      @link ||= raw.html_url
+    end
+
+    def detail
+      @detail ||= raw.trigger_summary_data.subject
     end
 
     def acknowledged?

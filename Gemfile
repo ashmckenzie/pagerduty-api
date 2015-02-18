@@ -16,5 +16,7 @@ gem 'puma'
 gem 'thin'
 gem 'wisper'
 
+gem 'terminal-table'
+
 gem 'pry', require: false
 gem 'pry-byebug', require: false
