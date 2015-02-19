@@ -58,7 +58,8 @@ module PD
         options[:user_id] = nil if all?
 
         incidents = PD::Incidents.where(options)
-        puts Formatters::Table.new(incidents).render
+        table = Formatters::Table.new(incidents).render
+        puts table if table
       end
     end
 
