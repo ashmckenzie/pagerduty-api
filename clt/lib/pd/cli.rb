@@ -1,5 +1,5 @@
 require 'clamp'
-require 'terminal-table'
+require 'highline/import'
 
 module PD
   class CLI < Clamp::Command
@@ -20,15 +20,31 @@ module PD
       end
     end
 
+    class AcknowledgeCommand < AbstractCommand
+      def execute
+        status = [ PD::Status::TRIGGERED ]
+        PD::Incidents.where(status: status).acknowledge_all!(interactive: true)
+      end
+    end
+
+    class ResolveCommand < AbstractCommand
+      def execute
+        status = [ PD::Status::TRIGGERED, PD::Status::ACKNOWLEDGED ]
+        PD::Incidents.where(status: status).resolve_all!(interactive: true)
+      end
+    end
+
     class AcknowledgeAllCommand < AbstractCommand
       def execute
-        PD::Incidents.where(status: %W( #{PD::Status::TRIGGERED} )).acknowledge_all!
+        status = [ PD::Status::TRIGGERED ]
+        PD::Incidents.where(status: status).acknowledge_all!
       end
     end
 
     class ResolveAllCommand < AbstractCommand
       def execute
-        PD::Incidents.where(status: %W( #{PD::Status::TRIGGERED} #{PD::Status::ACKNOWLEDGED} )).resolve_all!
+        status = [ PD::Status::TRIGGERED, PD::Status::ACKNOWLEDGED ]
+        PD::Incidents.where(status: status).resolve_all!
       end
     end
 
@@ -36,38 +52,21 @@ module PD
       option "--all", :flag, "All incidents, not just mine", default: false
 
       def execute
-        headings = [
-          'Node',
-          'Service',
-          'Detail',
-          'Assigned To',
-          'State',
-          'Created'
-        ]
+        status = [ PD::Status::TRIGGERED, PD::Status::ACKNOWLEDGED ]
 
-        options = { status: %W( #{Status::TRIGGERED} #{Status::ACKNOWLEDGED} ) }
+        options = { status: status }
         options[:user_id] = nil if all?
 
         incidents = PD::Incidents.where(options)
-
-        incident_rows = incidents.map do |incident|
-          [
-            incident.node.name,
-            incident.service.name,
-            incident.service.detail,
-            incident.user.name,
-            incident.status,
-            incident.timestamp
-          ]
-        end
-
-        puts Terminal::Table.new(headings: headings, rows: incident_rows) unless incident_rows.empty?
+        puts Formatters::Table.new(incidents).render
       end
     end
 
     class MainCommand < AbstractCommand
       subcommand 'console', 'Run a console', ConsoleCommand
       subcommand 'list', 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
+      subcommand 'ack', 'Acknowledge Interactively (mine)', AcknowledgeCommand
+      subcommand 'resolve', 'Resolve interactively (mine)', ResolveCommand
       subcommand 'ack-all', 'Acknowledge all (mine)', AcknowledgeAllCommand
       subcommand 'resolve-all', 'Resolve all (mine)', ResolveAllCommand
     end

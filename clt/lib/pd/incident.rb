@@ -22,6 +22,16 @@ module PD
       new(response)
     end
 
+    def inspect
+      attrs = [ self.class.name, id, node.name, service.name, service.detail, user.name, status, created_at ]
+      '<%s id:[%s] node:[%s] service:[%s] detail:[%s] assigned_to:[%s] status:[%s] created_at:[%s]>' % attrs
+    end
+
+    def inspect_short
+      attrs = [ self.class.name, node.name, service.name, service.detail ]
+      '<%s node:[%s] service:[%s] detail:[%s]>' % attrs
+    end
+
     def id
       @id ||= raw.id
     end
@@ -31,15 +41,15 @@ module PD
     end
 
     def user
-      @user ||= User.new(raw.assigned_to_user)
+      @user ||= raw.assigned_to_user ? User.new(raw.assigned_to_user) : NullUser.new
     end
 
     def link
       @link ||= raw.html_url
     end
 
-    def timestamp
-      @timestamp ||= raw.created_on.in_time_zone(settings.time_zone)
+    def created_at
+      @created_at ||= raw.created_on.in_time_zone(me.preferrered_time_zone)
     end
 
     def notes

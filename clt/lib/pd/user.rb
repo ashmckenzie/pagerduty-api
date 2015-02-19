@@ -25,4 +25,12 @@ module PD
 
       attr_reader :raw
   end
+
+  NullUser = Naught.build do |config|
+    config.mimic User
+
+    def name
+      'N/A'
+    end
+  end
 end

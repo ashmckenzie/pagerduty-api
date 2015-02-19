@@ -26,7 +26,7 @@ module PD
     def me
       @me ||= begin
         path = users_path(settings.user_id)
-        User.new(Client.connection.get(path))
+        User.new(Client.connection.get(path).user)
       end
     end
   end

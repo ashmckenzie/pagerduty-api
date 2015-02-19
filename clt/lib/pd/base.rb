@@ -5,5 +5,9 @@ module PD
     def settings
       @settings ||= $config.settings
     end
+
+    def me
+      @me ||= $config.me
+    end
   end
 end
