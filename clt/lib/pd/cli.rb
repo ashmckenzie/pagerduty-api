@@ -11,16 +11,12 @@ module PD
         puts PD::VERSION
         exit(0)
       end
-
-      def containers
-        @containers ||= Containers.new
-      end
     end
 
     class ConsoleCommand < AbstractCommand
       def execute
         require 'pry-byebug'
-        pry
+        pry PD
       end
     end
 
@@ -41,11 +37,12 @@ module PD
 
       def execute
         headings = [
-          '#',
           'Node',
-          'Assigned To',
+          'Service',
           'Detail',
-          'URL'
+          'Assigned To',
+          'State',
+          'Created'
         ]
 
         options = { status: %W( #{Status::TRIGGERED} #{Status::ACKNOWLEDGED} ) }
@@ -55,11 +52,12 @@ module PD
 
         incident_rows = incidents.map do |incident|
           [
-            incident.id,
             incident.node.name,
+            incident.service.name,
+            incident.service.detail,
             incident.user.name,
-            incident.detail,
-            incident.link
+            incident.status,
+            incident.timestamp
           ]
         end
 

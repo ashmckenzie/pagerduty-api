@@ -7,20 +7,19 @@ lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'logger'
+require 'pry-byebug'
 require 'pd'
 require 'pd/cli'
 
+$config = PD::Config.new
 $logger = Logger.new(STDOUT)
 
-logger_level = Logger::ERROR
-
-if ENV['VERBOSE'] == 'true'
-  logger_level = Logger::INFO
-end
-
-if ENV['DEBUG'] == 'true'
-  require 'pry-byebug'
-  logger_level = Logger::DEBUG
+logger_level = if ENV['VERBOSE'] == 'true'
+  Logger::INFO
+elsif ENV['DEBUG'] == 'true'
+  Logger::DEBUG
+else
+  Logger::ERROR
 end
 
 $logger.level = logger_level

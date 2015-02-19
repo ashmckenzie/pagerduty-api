@@ -17,6 +17,10 @@ module PD
       @email ||= raw.email
     end
 
+    def preferrered_time_zone
+      @preferrered_time_zone ||= ENV['PAGERDUTY_PREFERRED_TIME_ZONE'] || raw.time_zone
+    end
+
     private
 
       attr_reader :raw

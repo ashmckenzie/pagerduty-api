@@ -1,7 +1,12 @@
+require 'tzinfo'
+
 module PD
   class Incident
+
     include Base
     include Status
+    extend PathHelper   # FIXME
+    include PathHelper  # FIXME
 
     attr_reader :raw
 
@@ -10,7 +15,7 @@ module PD
     end
 
     def self.find(id, fields: false)
-      path = PathHelper.incident_path(id)
+      path = incident_path(id)
       options = {}
       options[:fields] = fields.join(',') if fields
       response = Client.connection.get(path, options)
@@ -25,10 +30,6 @@ module PD
       @status ||= raw.status
     end
 
-    def node
-      @node ||= Node.new(raw.trigger_summary_data.HOSTNAME)
-    end
-
     def user
       @user ||= User.new(raw.assigned_to_user)
     end
@@ -37,8 +38,33 @@ module PD
       @link ||= raw.html_url
     end
 
-    def detail
-      @detail ||= raw.trigger_summary_data.subject
+    def timestamp
+      @timestamp ||= raw.created_on.in_time_zone(settings.time_zone)
+    end
+
+    def notes
+      @notes ||= begin
+        path = incident_notes_path(id)
+        Client.connection.get(path).notes.map { |raw_note| Note.new(raw_note) }
+      end
+    end
+
+     def node
+      @node ||= Node.new(raw.trigger_summary_data.HOSTNAME)
+    end
+
+    def log_entries
+      @log_entrues ||= begin
+        path = incident_log_entries_path(id)
+         Client.connection.get(path, include: [ 'channel' ]).log_entries.map { |raw_log_entry| LogEntry.new(raw_log_entry) }
+      end
+    end
+
+    def service
+      @services ||= begin
+        log_entry = triggers.detect { |trigger| [ 'nagios' ].include?(trigger.channel.type) }
+        Services::Nagios.new(node, log_entry.channel) if log_entry
+      end
     end
 
     def acknowledged?
@@ -47,7 +73,7 @@ module PD
 
     def acknowledge!(force: false)
       return nil if acknowledged? && !force
-      path = PathHelper.incident_acknowledge_path(id)
+      path = incident_acknowledge_path(id)
       Client.connection.put(path, requester_id: settings.user_id)
     end
 
@@ -57,8 +83,15 @@ module PD
 
     def resolve!(force: false)
       return nil if resolved? && !force
-      path = PathHelper.incident_resolve_path(id)
+      path = incident_resolve_path(id)
       Client.connection.put(path, requester_id: settings.user_id)
     end
+
+    private
+
+      def triggers
+        @triggers ||= log_entries.select { |log_entry| log_entry.type == 'trigger' }
+      end
+
   end
 end

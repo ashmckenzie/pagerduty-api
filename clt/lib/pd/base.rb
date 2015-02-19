@@ -3,7 +3,7 @@ module PD
     DEFAULT_STATUS  = Status::ALL
 
     def settings
-      @settings ||= Config.settings
+      @settings ||= $config.settings
     end
   end
 end

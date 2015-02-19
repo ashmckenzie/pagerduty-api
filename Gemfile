@@ -11,6 +11,7 @@ gem "activesupport", "~> 3.2"
 gem 'pager_duty-connection'
 gem 'terminal-notifier'
 gem 'hashie'
+gem 'tzinfo'
 
 gem 'puma'
 gem 'thin'
