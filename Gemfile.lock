@@ -50,6 +50,8 @@ GEM
       ethon (>= 0.7.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    tzinfo-data (1.2015.1)
+      tzinfo (>= 1.0.0)
 
 PLATFORMS
   ruby
@@ -72,3 +74,4 @@ DEPENDENCIES
   terminal-table
   typhoeus
   tzinfo
+  tzinfo-data
