@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'bundler'
+Bundler.setup
+
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'naught'
+require 'logger'
+require 'pd'
+require 'pd/cli'
+
+$config = PD::Config.new
+$connection = PD::Connection.new($config.settings.account.name, $config.settings.account.token)
+$logger = Logger.new(STDOUT)
+
+logger_level = if ENV['VERBOSE'] == 'true'
+  Logger::INFO
+elsif ENV['DEBUG'] == 'true'
+  require 'pry'
+  Logger::DEBUG
+else
+  Logger::ERROR
+end
+
+$logger.level = logger_level
+
+PD::CLI::MainCommand.run
