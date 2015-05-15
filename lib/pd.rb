@@ -16,6 +16,8 @@ require_relative './pd/services'
 require_relative './pd/incident'
 require_relative './pd/incidents'
 require_relative './pd/incident_list'
+require_relative './pd/schedule'
+require_relative './pd/schedules'
 
 module PD
 end

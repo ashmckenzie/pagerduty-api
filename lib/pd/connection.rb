@@ -27,15 +27,17 @@ module PD
     def handle
       @handle ||= begin
         Faraday.new(url: base_url) do |builder|
-          builder.adapter :typhoeus
+          builder.adapter(:typhoeus)
 
-          builder.use Faraday::Request::UrlEncoded
-          builder.use Faraday::Response::RaiseError
-          # builder.use Faraday::Response::Logger
+          builder.use(Faraday::Response::RaiseError)
+          builder.use(Faraday::Response::Logger) if ENV['DEBUG'] == 'true'
 
-          builder.use FaradayMiddleware::Caching, ConnectionCacheStore.new($logger)
+          # builder.use(FaradayMiddleware::Caching, ConnectionCacheStore.new($logger))
 
-          builder.token_auth token
+          builder.token_auth(token)
+
+          builder.headers[:user_agent] = 'PD-CLT/1.0'
+          builder.headers[:content_type] = 'application/json'
         end
       end
     end

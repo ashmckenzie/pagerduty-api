@@ -1,7 +1,8 @@
 module PD
   class IncidentList
 
-    # attr_reader :incident_list
+    include Base
+    include PathHelper
 
     def initialize(raw_incident_list)
       @raw_incident_list = raw_incident_list
@@ -57,36 +58,51 @@ module PD
     end
 
     def prompt_user(incident, message)
-      puts Formatters::Table.new([ incident ]).render
+      puts Formatters::Incidents::Table.new([ incident ]).render
       message = "#{message} (y/n) "
 
       ask(message) do |q|
         q.validate = /y(es)?|n(o)?/i
+        q.default = 'y'
       end
     end
 
-    def resolve_all!(interactive: false)
+    def resolve_all!
+      incidents = incident_list.map { |i| { id: i.id, status: Status::RESOLVED } }
+      if incidents.empty?
+        $logger.info 'All incidents already resolved'
+        return true
+      end
+      $logger.info "Resolving all incidents"
+      options = { incidents: incidents, requester_id: settings.user_id }
+      $connection.put(incidents_path, options.to_json)
+    end
+
+    def resolve!
       each_with_index do |incident, i|
-
-        if interactive
-          message = "Resolve? (%s/%s)" % [ i+1, total ]
-          next unless prompt_user(incident, message) == /y(es)?/i
-        end
-
-        $logger.info "Resolving #{incident.inspect_short}" unless interactive
+        message = "Resolve? (%s/%s)" % [ i+1, total ]
+        next unless prompt_user(incident, message) == /y(es)?/i
+        $logger.info "Resolving #{incident.inspect_short}"
         incident.resolve!
       end
     end
 
-    def acknowledge_all!(interactive: false)
+    def acknowledge_all!
+      incidents = incident_list.map { |i| { id: i.id, status: Status::ACKNOWLEDGED } }
+      if incidents.empty?
+        $logger.info 'All incidents already acknowledged'
+        return true
+      end
+      $logger.info "Acknowledging all incidents"
+      options = { incidents: incidents, requester_id: settings.user_id }
+      $connection.put(incidents_path, options.to_json)
+    end
+
+    def acknowledge!
       each_with_index do |incident, i|
-
-        if interactive
-          message = "Acknowledge? (%s/%s)" % [ i+1, total ]
-          next unless prompt_user(incident, message) == /y(es)?/i
-        end
-
-        $logger.info "-> Acknowledging #{incident.inspect_short}" unless interactive
+        message = "Acknowledge? (%s/%s)" % [ i+1, total ]
+        next unless prompt_user(incident, message) == /y(es)?/i
+        $logger.info "Acknowledging #{incident.inspect_short}"
         incident.acknowledge!
       end
     end

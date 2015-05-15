@@ -1,7 +1,20 @@
 module PD
   module PathHelper
+
     def users_path(id)
       'users/%s' % [ id ]
+    end
+
+    def schedules_path
+      'schedules'
+    end
+
+    def schedule_path(id)
+      'schedules/%s' % [ id ]
+    end
+
+    def incidents_path
+      'incidents'
     end
 
     def incident_path(id)

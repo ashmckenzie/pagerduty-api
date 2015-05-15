@@ -3,6 +3,7 @@ module PD
 
     include Base
     include Status
+    include PathHelper   # FIXME
 
     def all
       where
@@ -25,7 +26,7 @@ module PD
         options[:fields] = fields.join(',') if fields
         options[:assigned_to_user] = user_id unless user_id.nil?
 
-        response = $connection.get('incidents', options)
+        response = $connection.get(incidents_path, options)
         response.incidents.map { |raw_incident| Incident.new(raw_incident) }
       end
   end

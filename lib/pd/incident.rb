@@ -5,8 +5,8 @@ module PD
 
     include Base
     include Status
-    extend PathHelper   # FIXME
     include PathHelper  # FIXME
+    extend PathHelper   # FIXME
 
     attr_reader :raw
 

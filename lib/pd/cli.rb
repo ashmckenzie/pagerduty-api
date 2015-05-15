@@ -5,7 +5,7 @@ module PD
   class CLI < Clamp::Command
 
     class AbstractCommand < Clamp::Command
-      option [ '-c', '--config_file' ], 'CONFIG', 'config file'
+      option [ '-c', '--config_file' ], 'CONFIG', 'Config file'
 
       option '--version', :flag, 'show version' do
         puts PD::VERSION
@@ -26,10 +26,14 @@ module PD
 
       def execute
         status = [ Status::TRIGGERED ]
-
         options = { status: status }
         options[:user_id] = nil if everyone?
-        PD::Incidents.new.where(options).acknowledge_all!(interactive: !non_interactive?)
+
+        if non_interactive?
+          PD::Incidents.new.where(options).acknowledge_all!
+        else
+          PD::Incidents.new.where(options).acknowledge!
+        end
       end
     end
 
@@ -38,10 +42,15 @@ module PD
       option "--non-interactive", :flag, "Non-interactively acknowledge", default: false
 
       def execute
-        status = [ Status::TRIGGERED, Status::ACKNOWLEDGED, Status::RESOLVED ]
+        status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
         options = { status: status }
         options[:user_id] = nil if everyone?
-        PD::Incidents.new.where(options).resolve_all!(interactive: !non_interactive?)
+
+        if non_interactive?
+          PD::Incidents.new.where(options).resolve_all!
+        else
+          PD::Incidents.new.where(options).resolve!
+        end
       end
     end
 
@@ -55,13 +64,26 @@ module PD
         options[:user_id] = nil if everyone?
 
         incidents = PD::Incidents.new.where(options)
-        table = Formatters::Table.new(incidents).render
+        table = Formatters::Incidents::Table.new(incidents).render
+        puts table if table
+      end
+    end
+
+    class SchedulesCommand < AbstractCommand
+      option [ '-q', '--query' ], 'QUERY', 'Query'
+
+      def execute
+        options = { query: query }
+
+        schedules = PD::Schedules.new.where(options)
+        table = Formatters::Schedules::Table.new(schedules).render
         puts table if table
       end
     end
 
     class MainCommand < AbstractCommand
       subcommand 'console', 'Run a console', ConsoleCommand
+      subcommand 'schedules', 'Who is currently on call', SchedulesCommand
       subcommand 'list', 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
       subcommand [ 'ack', 'acknowledge' ], 'Acknowledge incidents', AcknowledgeCommand
       subcommand 'resolve', 'Resolve incidents', ResolveCommand
