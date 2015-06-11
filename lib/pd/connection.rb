@@ -32,7 +32,7 @@ module PD
           builder.use(Faraday::Response::RaiseError)
           builder.use(Faraday::Response::Logger) if ENV['DEBUG'] == 'true'
 
-          # builder.use(FaradayMiddleware::Caching, ConnectionCacheStore.new($logger))
+          builder.use(FaradayMiddleware::Caching, ConnectionCacheStore.new($logger))
 
           builder.token_auth(token)
 

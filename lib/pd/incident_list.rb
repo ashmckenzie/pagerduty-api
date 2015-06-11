@@ -73,7 +73,7 @@ module PD
         $logger.info 'All incidents already resolved'
         return true
       end
-      $logger.info "Resolving all incidents"
+      $logger.info "Attempting to resolve all incidents"
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)
     end
@@ -81,8 +81,7 @@ module PD
     def resolve!
       each_with_index do |incident, i|
         message = "Resolve? (%s/%s)" % [ i+1, total ]
-        next unless prompt_user(incident, message) == /y(es)?/i
-        $logger.info "Resolving #{incident.inspect_short}"
+        next unless prompt_user(incident, message).match(/y(es)?/i)
         incident.resolve!
       end
     end
@@ -93,16 +92,15 @@ module PD
         $logger.info 'All incidents already acknowledged'
         return true
       end
-      $logger.info "Acknowledging all incidents"
+      $logger.info 'Acknowledging all incidents'
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)
     end
 
     def acknowledge!
       each_with_index do |incident, i|
-        message = "Acknowledge? (%s/%s)" % [ i+1, total ]
-        next unless prompt_user(incident, message) == /y(es)?/i
-        $logger.info "Acknowledging #{incident.inspect_short}"
+        message = 'Acknowledge? (%s/%s)' % [ i+1, total ]
+        next unless prompt_user(incident, message).match(/y(es)?/i)
         incident.acknowledge!
       end
     end

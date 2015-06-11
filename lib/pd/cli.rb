@@ -21,15 +21,16 @@ module PD
     end
 
     class AcknowledgeCommand < AbstractCommand
-      option "--everyone", :flag, "ALL incidents, not just mine", default: false
-      option "--non-interactive", :flag, "Non-interactively acknowledge", default: false
+      parameter('PATTERN', 'pattern to match (on node)', required: false)
+      option('--everyone', :flag, 'ALL incidents, not just mine', default: false)
+      option('--batch', :flag, 'Non-interactively acknowledge', default: false)
 
       def execute
         status = [ Status::TRIGGERED ]
-        options = { status: status }
+        options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
 
-        if non_interactive?
+        if batch?
           PD::Incidents.new.where(options).acknowledge_all!
         else
           PD::Incidents.new.where(options).acknowledge!
@@ -38,15 +39,16 @@ module PD
     end
 
     class ResolveCommand < AbstractCommand
-      option "--everyone", :flag, "All incidents, not just mine", default: false
-      option "--non-interactive", :flag, "Non-interactively acknowledge", default: false
+      parameter('PATTERN', 'pattern to match (on node)', required: false)
+      option('--everyone', :flag, 'All incidents, not just mine', default: false)
+      option('--batch', :flag, 'Non-interactively acknowledge', default: false)
 
       def execute
         status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
-        options = { status: status }
+        options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
 
-        if non_interactive?
+        if batch?
           PD::Incidents.new.where(options).resolve_all!
         else
           PD::Incidents.new.where(options).resolve!
@@ -55,7 +57,7 @@ module PD
     end
 
     class ListNeedingAttentionCommand < AbstractCommand
-      option "--everyone", :flag, "All incidents, not just mine", default: false
+      option('--everyone', :flag, 'All incidents, not just mine', default: false)
 
       def execute
         status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
@@ -85,7 +87,7 @@ module PD
       subcommand 'console', 'Run a console', ConsoleCommand
       subcommand 'schedules', 'Who is currently on call', SchedulesCommand
       subcommand 'list', 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
-      subcommand [ 'ack', 'acknowledge' ], 'Acknowledge incidents', AcknowledgeCommand
+      subcommand %w(ack acknowledge), 'Acknowledge incidents', AcknowledgeCommand
       subcommand 'resolve', 'Resolve incidents', ResolveCommand
     end
   end

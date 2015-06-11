@@ -91,22 +91,36 @@ module PD
       end
     end
 
+    def match?(pattern)
+      !!(node.name.match(pattern) || service.name.match(pattern))
+    end
+
     def acknowledged?
       @ackd ||= raw.status == Status::ACKNOWLEDGED
     end
 
-    def acknowledge!(force: false)
-      return nil if acknowledged? && !force
+    def acknowledge!
+      if acknowledged?
+        $logger.warn "Incident already acknowledged #{inspect_short}"
+        return nil
+      else
+        $logger.info "Acknowledging incident #{inspect_short}"
+      end
       path = incident_acknowledge_path(id)
-      $connection.put(path, requester_id: settings.user_id)
+      $connection.put(path + '?requester_id=%s' % settings.user_id)
     end
 
     def resolved?
       @resolved ||= raw.status == Status::RESOLVED
     end
 
-    def resolve!(force: false)
-      return nil if resolved? && !force
+    def resolve!
+      if resolved?
+        $logger.warn "Incident already resolved #{inspect_short}"
+        return nil
+      else
+        $logger.info "Resolving incident #{inspect_short}"
+      end
       path = incident_resolve_path(id)
       $connection.put(path, requester_id: settings.user_id)
     end
