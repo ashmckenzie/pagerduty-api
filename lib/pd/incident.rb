@@ -122,7 +122,7 @@ module PD
         $logger.info "Resolving incident #{inspect_short}"
       end
       path = incident_resolve_path(id)
-      $connection.put(path, requester_id: settings.user_id)
+      $connection.put(path + '?requester_id=%s' % settings.user_id)
     end
 
     private
