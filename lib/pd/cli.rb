@@ -5,7 +5,7 @@ module PD
   class CLI < Clamp::Command
 
     class AbstractCommand < Clamp::Command
-      option [ '-c', '--config_file' ], 'CONFIG', 'Config file'
+      option [ '-c', '--config_file' ], 'CONFIG', 'Config file', default: PD::Config::DEFAULT_CONFIG_FILE
 
       option '--version', :flag, 'show version' do
         puts PD::VERSION
@@ -26,7 +26,7 @@ module PD
       option('--batch', :flag, 'Non-interactively acknowledge', default: false)
 
       def execute
-        status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
+        status = [ Status::TRIGGERED ]
         options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
 
@@ -83,12 +83,25 @@ module PD
       end
     end
 
+    class OncallCommand < AbstractCommand
+      option [ '-q', '--query' ], 'QUERY', 'Query'
+
+      def execute
+        options = { query: query }
+
+        escalation_policies = PD::EscalationPolicies.new.where(options)
+        table = Formatters::OnCall::Table.new(escalation_policies).render
+        puts table if table
+      end
+    end
+
     class MainCommand < AbstractCommand
-      subcommand 'console', 'Run a console', ConsoleCommand
-      subcommand 'schedules', 'Who is currently on call', SchedulesCommand
-      subcommand 'list', 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
-      subcommand %w(ack acknowledge), 'Acknowledge incidents', AcknowledgeCommand
-      subcommand 'resolve', 'Resolve incidents', ResolveCommand
+      # subcommand %w(c console), 'Run a console', ConsoleCommand
+      # subcommand %w(s schedules), 'Who is currently on call', SchedulesCommand
+      subcommand %w(o oncall), 'Who is currently on call', OncallCommand
+      subcommand %w(l list), 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
+      subcommand %w(a ack acknowledge), 'Acknowledge incidents', AcknowledgeCommand
+      subcommand %w(r resolve), 'Resolve incidents', ResolveCommand
     end
   end
 end

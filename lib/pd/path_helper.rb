@@ -10,7 +10,15 @@ module PD
     end
 
     def schedule_path(id)
-      'schedules/%s' % [ id ]
+      '%s/%s' % [ schedules_path, id ]
+    end
+
+    def escalation_policies_path
+      'escalation_policies/on_call'
+    end
+
+    def escalation_policy_path(query)
+      '%s?query=%s' % [ escalation_policies_path, query ]
     end
 
     def incidents_path
@@ -18,23 +26,23 @@ module PD
     end
 
     def incident_path(id)
-      'incidents/%s' % [ id ]
+      '%s/%s' % [ incidents_path, id ]
     end
 
     def incident_acknowledge_path(id)
-      'incidents/%s/acknowledge' % [ id ]
+      '%s/%s/acknowledge' % [ incidents_path, id ]
     end
 
     def incident_resolve_path(id)
-      'incidents/%s/resolve' % [ id ]
+      '%s/%s/resolve' % [ incidents_path, id ]
     end
 
     def incident_notes_path(id)
-      'incidents/%s/notes' % [ id ]
+      '%s/%s/notes' % [ incidents_path, id ]
     end
 
     def incident_log_entries_path(id)
-      'incidents/%s/log_entries' % [ id ]
+      '%s/%s/log_entries' % [ incidents_path, id ]
     end
   end
 end
