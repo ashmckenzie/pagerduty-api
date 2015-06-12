@@ -18,9 +18,7 @@ module PD
       end
 
       def detail
-        @detail || begin
-          raw.details.SERVICEOUTPUT.gsub('br /', "\n")
-        end
+        @detail || raw.details.SERVICEOUTPUT.gsub('br /', "\n")
       end
     end
   end

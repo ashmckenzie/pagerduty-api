@@ -2,25 +2,22 @@ module PD
   module Services
     class Datadog
 
-      attr_reader :node, :raw
+      attr_reader :raw
 
-      def initialize(node, raw)
-        @node = node
+      def initialize(raw)
         @raw = raw
       end
 
       def name
-        @service ||= raw.service
+        @service ||= raw.summary
       end
 
       def state
-        @state ||= raw.state
+        'CRITICAL'
       end
 
       def detail
-        @detail || begin
-          raw.details.SERVICEOUTPUT.gsub('br /', "\n")
-        end
+        @detail || raw.details.body.gsub('br /', "\n")
       end
     end
   end

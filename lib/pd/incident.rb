@@ -67,7 +67,7 @@ module PD
       end
     end
 
-     def node
+    def node
       @node ||= begin
         hostname = raw.trigger_summary_data.HOSTNAME
         hostname ? Node.new(hostname) : NullNode.new
@@ -86,8 +86,19 @@ module PD
 
     def service
       @services ||= begin
-        log_entry = triggers.detect { |trigger| [ 'nagios' ].include?(trigger.channel.type) }
-        log_entry ? Services::Nagios.new(node, log_entry.channel) : Services::NullService.new(node)
+        log_entry = triggers.detect { |trigger| [ 'nagios', 'api' ].include?(trigger.channel.type) }
+
+        case log_entry.channel.type
+        when 'nagios'
+          Services::Nagios.new(node, log_entry.channel)
+        when 'api'
+          case triggers.first.channel.client.downcase
+          when 'datadog'
+            Services::Datadog.new(log_entry.channel)
+          end
+        else
+          Services::NullService.new(node)
+        end
       end
     end
 

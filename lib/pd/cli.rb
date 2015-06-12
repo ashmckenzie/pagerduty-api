@@ -26,7 +26,7 @@ module PD
       option('--batch', :flag, 'Non-interactively acknowledge', default: false)
 
       def execute
-        status = [ Status::TRIGGERED ]
+        status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
         options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
 
