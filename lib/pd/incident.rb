@@ -103,7 +103,7 @@ module PD
     end
 
     def match?(pattern)
-      !!(node.name.match(pattern) || service.name.match(pattern))
+      !!(node.name.match(pattern) || service.name.match(pattern) || service.detail.match(pattern))
     end
 
     def acknowledged?
@@ -115,7 +115,7 @@ module PD
         $logger.warn "Incident already acknowledged #{inspect_short}"
         return nil
       else
-        $logger.info "Acknowledging incident #{inspect_short}"
+        $logger.debug "Acknowledging incident #{inspect_short}"
       end
       path = incident_acknowledge_path(id)
       $connection.put(path + '?requester_id=%s' % settings.user_id)
@@ -130,7 +130,7 @@ module PD
         $logger.warn "Incident already resolved #{inspect_short}"
         return nil
       else
-        $logger.info "Resolving incident #{inspect_short}"
+        $logger.debug "Resolving incident #{inspect_short}"
       end
       path = incident_resolve_path(id)
       $connection.put(path + '?requester_id=%s' % settings.user_id)
