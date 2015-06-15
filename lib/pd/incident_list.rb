@@ -57,23 +57,17 @@ module PD
       incident_list.count
     end
 
-    def prompt_user(incident, message)
-      puts Formatters::Incidents::Table.new([ incident ]).render
-      message = "#{message} (y/n) "
-
-      ask(message) do |q|
-        q.validate = /y(es)?|n(o)?/i
-        q.default = 'y'
-      end
-    end
-
     def resolve_all!
       incidents = incident_list.map { |i| { id: i.id, status: Status::RESOLVED } }
       if incidents.empty?
         $logger.info 'All incidents already resolved'
         return true
       end
-      $logger.info "Attempting to resolve all incidents"
+
+      $logger.debug 'Attempting to resolve all incidents'
+      puts Formatters::Incidents::Table.new(incident_list).render
+      return unless prompt('Are you sure?').match(/y(es)?/i)
+
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)
     end
@@ -92,7 +86,11 @@ module PD
         $logger.info 'All incidents already acknowledged'
         return true
       end
-      $logger.info 'Acknowledging all incidents'
+
+      $logger.debug 'Acknowledging all incidents'
+      puts Formatters::Incidents::Table.new(incident_list).render
+      return unless prompt('Are you sure?').match(/y(es)?/i)
+
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)
     end
@@ -108,5 +106,19 @@ module PD
     private
 
       attr_reader :raw_incident_list
+
+      def prompt_user(incident, message)
+        puts Formatters::Incidents::Table.new([ incident ]).render
+        prompt(message)
+      end
+
+      def prompt(message)
+        message = "#{message} (y/n) "
+        ask(message) do |q|
+          q.validate = /y(es)?|n(o)?/i
+          q.default = 'y'
+        end
+      end
+
   end
 end
