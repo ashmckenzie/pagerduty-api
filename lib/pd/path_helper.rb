@@ -5,14 +5,6 @@ module PD
       'users/%s' % [ id ]
     end
 
-    def schedules_path
-      'schedules'
-    end
-
-    def schedule_path(id)
-      '%s/%s' % [ schedules_path, id ]
-    end
-
     def escalation_policies_path
       'escalation_policies/on_call'
     end

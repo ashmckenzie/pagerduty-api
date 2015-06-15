@@ -71,18 +71,6 @@ module PD
       end
     end
 
-    class SchedulesCommand < AbstractCommand
-      option [ '-q', '--query' ], 'QUERY', 'Query'
-
-      def execute
-        options = { query: query }
-
-        schedules = PD::Schedules.new.where(options)
-        table = Formatters::Schedules::Table.new(schedules).render
-        puts table if table
-      end
-    end
-
     class OncallCommand < AbstractCommand
       option [ '-q', '--query' ], 'QUERY', 'Query'
 
@@ -97,7 +85,6 @@ module PD
 
     class MainCommand < AbstractCommand
       # subcommand %w(c console), 'Run a console', ConsoleCommand
-      # subcommand %w(s schedules), 'Who is currently on call', SchedulesCommand
       subcommand %w(o oncall), 'Who is currently on call', OncallCommand
       subcommand %w(l list), 'List incidents needing attention (triggered + acknowledged)', ListNeedingAttentionCommand
       subcommand %w(a ack acknowledge), 'Acknowledge incidents', AcknowledgeCommand
