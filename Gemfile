@@ -19,3 +19,5 @@ gem 'terminal-table'
 
 gem 'pry', require: false
 gem 'pry-byebug', require: false
+
+gem 'ruby-prof'

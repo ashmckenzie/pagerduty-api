@@ -57,7 +57,7 @@ module PD
       incident_list.count
     end
 
-    def resolve_all!
+    def resolve_all!(confirm: true)
       incidents = incident_list.map { |i| { id: i.id, status: Status::RESOLVED } }
       if incidents.empty?
         $logger.info 'All incidents already resolved'
@@ -66,7 +66,7 @@ module PD
 
       $logger.debug 'Attempting to resolve all incidents'
       puts Formatters::Incidents::Table.new(incident_list).render
-      return unless prompt('Are you sure?').match(/y(es)?/i)
+      return unless prompt('%s matches, are you sure?' % incidents.count).match(/y(es)?/i) if confirm
 
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)
@@ -80,7 +80,7 @@ module PD
       end
     end
 
-    def acknowledge_all!
+    def acknowledge_all!(confirm: true)
       incidents = incident_list.map { |i| { id: i.id, status: Status::ACKNOWLEDGED } }
       if incidents.empty?
         $logger.info 'All incidents already acknowledged'
@@ -89,7 +89,7 @@ module PD
 
       $logger.debug 'Acknowledging all incidents'
       puts Formatters::Incidents::Table.new(incident_list).render
-      return unless prompt('Are you sure?').match(/y(es)?/i)
+      return unless prompt('%s matches, are you sure?' % incidents.count).match(/y(es)?/i) if confirm
 
       options = { incidents: incidents, requester_id: settings.user_id }
       $connection.put(incidents_path, options.to_json)

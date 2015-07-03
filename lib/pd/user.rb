@@ -19,22 +19,29 @@ module PD
 
     def preferred_time_zone
       @preferred_time_zone ||= TZInfo::Timezone.get(time_zone)
-    end
+      end
 
     private
 
       attr_reader :raw
 
+      def raw_time_zone
+        @raw_time_zone ||= begin
+          if raw.time_zone == 'Pacific Time (US & Canada)'
+            'US/Pacific'
+          else
+            raw.time_zone
+          end
+        end
+      end
+
       def time_zone
         if ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
           ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
         else
-          matches = TZInfo::Timezone.all_identifiers.select { |x| x.match(/#{raw.time_zone}/) }
-          if matches.count == 1
-            matches.first
-          else
-            fail "Unable to accurately determine time zone based off '%s'" % raw.time_zone
-          end
+          match = TZInfo::Timezone.all_identifiers.detect { |x| x.match(/#{raw_time_zone}/) }
+          fail "Unable to accurately determine time zone based off '%s'" % raw_time_zone unless match
+          match
         end
       end
   end

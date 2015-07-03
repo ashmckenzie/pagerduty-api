@@ -13,25 +13,27 @@ module PD
       end
     end
 
-    class ConsoleCommand < AbstractCommand
-      def execute
-        require 'pry-byebug'
-        pry PD
-      end
-    end
+    # class ConsoleCommand < AbstractCommand
+    #   def execute
+    #     require 'pry-byebug'
+    #     pry PD
+    #   end
+    # end
 
     class AcknowledgeCommand < AbstractCommand
       parameter('PATTERN', 'pattern to match (on node)', required: false)
       option('--everyone', :flag, 'ALL incidents, not just mine', default: false)
       option('--batch', :flag, 'Non-interactively acknowledge', default: false)
+      option('--yes', :flag, "Don't confirm, just do it!", default: false)
 
       def execute
         status = [ Status::TRIGGERED ]
         options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
+        ack_options = { confirm: !yes? }
 
         if batch?
-          PD::Incidents.new.where(options).acknowledge_all!
+          PD::Incidents.new.where(options).acknowledge_all!(ack_options)
         else
           PD::Incidents.new.where(options).acknowledge!
         end
@@ -42,14 +44,16 @@ module PD
       parameter('PATTERN', 'pattern to match (on node)', required: false)
       option('--everyone', :flag, 'All incidents, not just mine', default: false)
       option('--batch', :flag, 'Non-interactively acknowledge', default: false)
+      option('--yes', :flag, "Don't confirm, just do it!", default: false)
 
       def execute
         status = [ Status::TRIGGERED, Status::ACKNOWLEDGED ]
         options = { status: status, pattern: pattern }
         options[:user_id] = nil if everyone?
+        resolve_options = { confirm: !yes? }
 
         if batch?
-          PD::Incidents.new.where(options).resolve_all!
+          PD::Incidents.new.where(options).resolve_all!(resolve_options)
         else
           PD::Incidents.new.where(options).resolve!
         end
