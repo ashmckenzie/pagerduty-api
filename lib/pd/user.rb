@@ -27,22 +27,19 @@ module PD
 
       def raw_time_zone
         @raw_time_zone ||= begin
-          if raw.time_zone == 'Pacific Time (US & Canada)'
-            'US/Pacific'
+          tz = if ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
+            ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
           else
             raw.time_zone
           end
+          tz == 'Pacific Time (US & Canada)' ?  'US/Pacific' : raw.time_zone
         end
       end
 
       def time_zone
-        if ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
-          ENV['PAGERDUTY_PREFERRED_TIME_ZONE']
-        else
-          match = TZInfo::Timezone.all_identifiers.detect { |x| x.match(/#{raw_time_zone}/) }
-          fail "Unable to accurately determine time zone based off '%s'" % raw_time_zone unless match
-          match
-        end
+        match = TZInfo::Timezone.all_identifiers.detect { |x| x.match(/#{raw_time_zone}/) }
+        fail "Unable to accurately determine time zone based off '%s'" % raw_time_zone unless match
+        match
       end
   end
 
